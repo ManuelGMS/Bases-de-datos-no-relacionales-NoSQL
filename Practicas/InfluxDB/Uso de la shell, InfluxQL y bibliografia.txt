@@ -1,0 +1,59 @@
+Iniciar la shell de InfluxDB: influx [ -precision rfc3339 ]
+
+Cambiar de base de datos: use <<dbName>>
+
+Mostrar información:
+show [ databases / shards / measurements / series / retention policies / continuous queries / users ]
+
+Creación:
+create database <<dbName>> with duration <<time>> replication <<int>> shard duration <<time>>
+create continuous query <<cqName>> on <<dbName>> begin <<query>> end
+create user <<userName>> with password <<password>> with [ read / write / all ] privileges
+create retention policy <<rpName>> on <<dbName>> duration <<time>> replication <<int>> shard duration <<time>>
+
+Borrado:
+drop database <<dbName>>
+drop continuous query <<cqName>> on <<dbName>>
+drop series from <<measure>> where <<tagName>> = <<tagValue>>
+drop user <<userName>>
+drop retention policy <<rpName>> on <<dbName>>
+
+// *******************************************************************************************************************************************************************************************************
+
+DELETE:
+
+delete from <<measure>> where <<tagName>> = <<tagValue>>
+
+INSERT:
+
+insert <<measure>> [ ,tag1=name1,… ] <<space>> field1=value1 [ ,field2=value2,… ]
+
+SELECT:
+
+select << * / field / tag >> from <<measure>> where << tag / field / time condition >> group by << tag / field >> order by time << desc / asc >> limit <<int>>
+
+select count(*), mean(<<field>>), elapsed(<<field>>,<<timeInterval>>)  from <<measure>>
+
+// *******************************************************************************************************************************************************************************************************
+
+La plataforma InfluxDB: 
+https://www.influxdata.com/time-series-platform/
+
+Conceptos de InfluxDB:
+https://docs.influxdata.com/influxdb/v1.8/concepts/
+
+Listas de reproducción del canal de Youtube de InfluxDB:
+https://www.youtube.com/channel/UCnrgOD6G0y0_rcubQuICpTQ/playlists
+
+La shell de InfluxDB:
+https://docs.influxdata.com/influxdb/v1.8/tools/shell/
+
+El lenguaje de consultas InfluxQL:
+https://docs.influxdata.com/influxdb/v1.8/query_language
+
+Librerías para usar InfluxDB como un servicio web:
+https://docs.influxdata.com/influxdb/v1.8/tools/api_client_libraries/
+
+Librerías Python para InfluxDB:
+Para InfluxDB Cloud: https://github.com/influxdata/influxdb-client-python
+Para un dominio web o localhost: https://github.com/influxdata/influxdb-python

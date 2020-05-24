@@ -1,0 +1,148 @@
+Nombre: Manuel Guerrero Moñús
+
+// ********************************************************************************
+
+Ejercicio 1º)
+
+mongod --port 27001 --replSet practReplica001 --dbpath ./data1 --oplogSize 50
+mongod --port 27002 --replSet practReplica001 --dbpath ./data2 --oplogSize 50
+mongod --port 27003 --replSet practReplica001 --dbpath ./data3 --oplogSize 50
+
+mongo --port 27001
+
+let config = {
+	_id: "practReplica001",
+	members: [
+		{ _id: 0 , host: "localhost:27001" },
+		{ _id: 1 , host: "localhost:27002" },
+		{ _id: 2 , host: "localhost:27003" }
+	]
+}
+
+rs.initiate(config);
+
+// ********************************************************************************
+
+Ejercicio 2º)
+
+rs.status();
+En "members" --> "_id": 2, "health" : 0, "stateStr" : "(not reachable/healthy)".
+
+Procesos mongo del sistema GNU\Linux:
+ps -ef | grep mongo
+manuelg+  7611  4859  0 13:49 pts/0    00:00:12 mongod --port 27001 --replSet practReplica001 --dbpath ./data1 --oplogSize 50
+manuelg+  8164  4949  1 14:05 pts/1    00:00:06 mongod --port 27002 --replSet practReplica001 --dbpath ./data2 --oplogSize 50
+
+Servidores mongo a la escucha en GNU\Linux:
+lsof -i TCP -s TCP:LISTEN | grep mongo
+mongod  7611 manuelgms    9u  IPv4 101665      0t0  TCP localhost:27001 (LISTEN)
+mongod  8164 manuelgms    9u  IPv4 113723      0t0  TCP localhost:27002 (LISTEN)
+
+Desde la segunda terminal:
+[replexec-3] Error in heartbeat (requestId: 1814) to localhost:27003, response status: HostUnreachable: Error connecting to localhost:27003 (127.0.0.1:27003) :: caused by :: Connection refused
+
+// ********************************************************************************
+
+Ejercicio 3º)
+
+db.tururu.insert({dato:"tuturu"},{ writeConcern: { w:3, wtimeout: 1500 }})
+
+Salida:
+"codeName" : "WriteConcernFailed",
+"errmsg" : "waiting for replication timed out"
+
+Explicación: Solo hay 2 nodos activos en el conjunto de réplica, no es posible garantizar la consistencia de escritura al no poderse alcanzar el tercer nodo.
+
+// ********************************************************************************
+
+Ejercicio 4º)
+
+a)
+
+use pruebas
+db.tururu.drop()
+for (i=0;i<1000;i++){db.tururu.insert({dato:"tururu"+i});}
+
+b)
+
+db.tururu.find().count()
+1000
+
+c)
+
+En T0
+CTRL + C
+
+d)
+
+En T1
+CTRL + C
+
+e)
+
+Borrar data1 para simular un fallo del disco duro.
+
+f)
+
+La colección tururu es visible y está completa en los nodos de T2 y T3.
+
+Si, en el T3. ¿¿¿???
+
+// ********************************************************************************
+
+Ejercicio 5º)
+
+a)
+
+mkdir data1
+
+b)
+
+mongod --port 27001 --replSet practReplica001 --dbpath ./data1 --oplogSize 50
+
+c)
+
+En T0: CTRL + C
+
+d)
+
+En T0: mongo --port 27001
+
+La colección tururu no es directamente visible, hay que usar la instrucción rs.slaveOk();
+
+// ********************************************************************************
+
+Ejercicio 6º) 
+
+db.getMongo().setReadPref('secondaryPreferred'); ¿¿¿???
+
+db.tururu.find().readPref("secondaryPreferred");
+
+// ********************************************************************************
+
+Ejercicio 7º)
+
+mkdir data4
+mongod --port 27004 --replSet practReplica001 --dbpath ./data4 --oplogSize 50
+
+// let config = rs.conf();
+// config.members.push({ _id: 3 , host: "localhost:27004" });
+// rs.reconfig(config);
+// o bien
+// rs.add({ _id: 3 , host: "localhost:27004" });
+
+rs.status();
+
+// ********************************************************************************
+
+Ejercicio 8º)
+
+En T0:
+
+rs.stepDown();
+
+CTRL + C
+
+mongo --port 27001
+
+rs.remove("localhost:27002");

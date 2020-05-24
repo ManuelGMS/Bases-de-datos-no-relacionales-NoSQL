@@ -1,0 +1,5 @@
+{"_id":"aniceto","coord":{"long":20.0,"lat":30.0},"loc":{"pais":"sp","cp":29000.0},"verified":1.0,"tweets":[{"rt":0.0,"del":1.0},{"rt":0.0,"del":1.0},{"rt":0.0,"del":1.0}]}
+{"_id":"bertoldo","loc":{"pais":"sp","cp":28807.0},"verified":1.0,"tweets":[{"rt":0.0,"del":1.0},{"rt":0.0,"del":0.0},{"rt":0.0,"del":0.0}]}
+{"_id":"clodovea","loc":{"pais":"ru","cp":false},"verified":0.0,"tweets":[{"rt":0.0,"del":1.0},{"rt":1.0,"del":0.0},{"rt":0.0,"del":1.0},{"rt":0.0,"del":1.0},{"rt":0.0,"del":1.0},{"rt":0.0,"del":1.0}]}
+{"_id":"herminia","coord":{"long":1.0,"lat":40.0},"loc":{"pais":"sp","cp":24001.0},"verified":0.0,"tweets":[{"rt":1.0},{"rt":0.0,"del":0.0},{"rt":0.0,"del":1.0}]}
+{"_id":"tiburcio","loc":{"pais":"jp","cp":"3002"},"verified":0.0,"tweets":[{"rt":0.0,"del":1.0}]}

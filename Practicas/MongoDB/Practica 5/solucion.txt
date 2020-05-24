@@ -1,0 +1,34 @@
+// Estudiante 1:
+Pablo Miranda Torres
+// Estudiante 2
+Manuel Guerrero Moñús
+// Estudiante 3
+// Observaciones:
+
+// 1
+db.tweet.createIndex({text: "text"}, "textIndex")
+db.tweet.find({$text: {$search: "USA"}}).count()
+// 2
+db.tweet.find({$text: {$search: "USA WIN"}}).count()
+
+// 3
+db.tweet.find({$text: {$search: "WIN -USA"}}).count()
+
+// 4
+db.tweet.find({$text: {$search: "lie"}},{_id: 0, text: 1, score: 1, score: {$meta: "textScore"}}).sort({score: {$meta: "textScore"}}).limit(1).pretty()
+
+// 5.a
+(db.tweet.find({hlabel: -1, $text: {$search: "lie"}}).count()/db.tweet.find({hlabel: -1}).count())*100
+
+// 5.b
+(db.tweet.find({tlabel: -1, $text: {$search: "lie"}}).count()/db.tweet.find({tlabel: -1}).count())*100
+// 6
+db.tweet.aggregate([{$match: {$text: {$search: "lie"}}},{$group: {_id: "$user.screen", veces: { $sum: 1}}}, {$sort: {"veces": -1}}, {$limit: 4}])
+// 7.a
+db.tweet.createIndex({tlabel: 1, created_at: -1}, "indexTweets")
+// 7.b
+Antes: 0 claves examinadas y 17834 documentos
+Después: 0 documentos examinados, claves examinadas: 5381
+
+// 10
+db.prueba.find({a:2,b:1}).hint({b:1}).explain()

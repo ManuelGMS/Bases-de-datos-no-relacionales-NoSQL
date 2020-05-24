@@ -1,0 +1,111 @@
+Manuel Guerrero Moñús
+
+bash cluster.sh 3 3 1 --> 3 Shards, 3 Replica Set Factor, Chunk Size 1 MB.
+
+Soluciones:
+
+1º)
+
+lsof -i TCP -s TCP:LISTEN | grep mongos
+
+2º)
+
+mongo --port 27017
+
+sh.status();
+
+3º)
+
+use infantil
+
+sh.enableSharding("infantil");
+
+sh.status();
+
+4º)
+
+db.tallas.createIndex({edad:1},"AgeIndex");
+
+sh.shardCollection("infantil.tallas",{edad:1},false);
+
+5º)
+
+sh.setBalancerState(true)
+sh.enableAutoSplit()
+
+// Asociamos las etiquetas o "tags" a los shards.
+sh.addShardTag("partition1","1-3")
+sh.addShardTag("partition2","4-7")
+sh.addShardTag("partition3","8-12")
+
+// Indicamos qué rangos de la shard key se asocian a cada etiqueta.
+sh.addTagRange("infantil.tallas", {edad:1},{edad:4}, "1-3")
+sh.addTagRange("infantil.tallas", {edad:4},{edad:8}, "4-7")
+sh.addTagRange("infantil.tallas", {edad:8},{edad:13}, "8-12")
+
+for(i=0; i<100000; i++) db.tallas.insert({_id:i, edad: i%13+1});
+
+sh.status();
+
+tag: 1-3  { "edad" : 1 } -->> { "edad" : 4 }
+tag: 4-7  { "edad" : 4 } -->> { "edad" : 8 }
+tag: 8-12  { "edad" : 8 } -->> { "edad" : 13 }
+
+6º)
+
+sh.status();
+
+chunks:
+partition1	3
+partition2	3
+partition3	4
+
+O BIEN
+
+db.tallas.getShardDistribution();
+
+Shard partition1 at partition1/localhost:27100,localhost:27101,localhost:27102
+ data : 721KiB docs : 23079 chunks : 3
+ estimated data per chunk : 240KiB
+ estimated docs per chunk : 7693
+
+Shard partition3 at partition3/localhost:27300,localhost:27301,localhost:27302
+ data : 1.4MiB docs : 46152 chunks : 4
+ estimated data per chunk : 360KiB
+ estimated docs per chunk : 11538
+
+Shard partition2 at partition2/localhost:27200,localhost:27201,localhost:27202
+ data : 961KiB docs : 30769 chunks : 3
+ estimated data per chunk : 320KiB
+ estimated docs per chunk : 10256
+
+Totals
+ data : 3.05MiB docs : 100000 chunks : 10
+ Shard partition1 contains 23.07% data, 23.07% docs in cluster, avg obj size on shard : 32B
+ Shard partition3 contains 46.15% data, 46.15% docs in cluster, avg obj size on shard : 32B
+ Shard partition2 contains 30.76% data, 30.76% docs in cluster, avg obj size on shard : 32B
+
+
+7º)
+
+explica = db.tallas.explain("queryPlanner");
+
+explica.find({_id:400});
+
+Observamos:
+
+"shards" : [ { "shardName" : "partition3" ... } , { "shardName" : "partition1" ... } , { "shardName" : "partition2" ... } ]
+
+Ha visitado los 3 shards debido a que la consulta no ha usado el índice de partición, esto hace que no se sepa como están
+distribuidos los datos en función de ese criterio, por lo que mongos enviará la consulta a los 3 shard y luego juntará los resultados.
+
+
+8º)
+
+explica.find({edad:8});
+
+Observamos:
+
+"shards" : [ { "shardName" : "partition3" ... } ]
+
+Solamente ha visitado un shard debido a que al consultar por la shard key sabe sobre que partición tiene que realizar la consulta.

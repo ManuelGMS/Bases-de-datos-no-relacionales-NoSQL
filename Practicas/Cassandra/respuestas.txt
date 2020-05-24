@@ -1,0 +1,48 @@
+Nombre: Manuel Guerrero Moñús
+
+P1)
+
+create table viajesDelCliente( 
+	idCliente text,	
+	lugarPartida text,
+	lugarDestino text,
+	fechaPartida timestamp,
+	numDias int,
+	primary key((idCliente),fechaPartida)
+) with clustering order by(fechaPartida desc);
+
+create table clientesDelViaje(
+	idViaje int, 
+	idCliente text,	
+	hitos map<text,text>,
+	primary key((idViaje),idCliente)
+) with clustering order by(idCliente asc);
+
+
+P2)
+
+insert into viajesDelCliente(idCliente, lugarPartida, lugarDestino, fechaPartida, numDias) values ('Bertoldo','Madrid','Paris','2019-05-02',2);
+insert into viajesDelCliente(idCliente, lugarPartida, lugarDestino, fechaPartida, numDias) values ('Bertoldo','Madrid','Tokyo','2019-06-01',7);
+insert into viajesDelCliente(idCliente, lugarPartida, lugarDestino, fechaPartida, numDias) values ('Herminia','Barcelona','Paris','2019-05-02',2);
+
+insert into clientesDelViaje(idViaje, idCliente, hitos) values (3,'Bertoldo',{'Versailles':'3-05 contacta agencia'});
+insert into clientesDelViaje(idViaje, idCliente, hitos) values (3,'Herminia',{'Versailles':'3-05 contacta agencia'});
+insert into clientesDelViaje(idViaje, idCliente, hitos) values (4,'Bertoldo',{'Transbordo':'Frankfurt, puerta C27'});
+
+
+P3)
+
+select lugarpartida,lugardestino,fechapartida,numdias from viajesdelcliente where idcliente = 'Bertoldo';
+
+select idcliente,hitos from clientesdelviaje where idviaje = 3;
+
+
+P4)
+
+update clientesdelviaje set hitos = hitos + {'regreso' : '2019-05-04'} where idviaje = 3 and idcliente = 'Bertoldo';
+
+
+P5)
+
+select lugarPartida,lugarDestino,fechaPartida from viajesdelcliente where idcliente = 'Bertoldo' and fechaPartida in('2019-06-01','2019-05-02','2020-01-01');
+

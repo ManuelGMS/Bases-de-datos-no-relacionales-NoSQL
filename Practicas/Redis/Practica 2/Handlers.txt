@@ -1,0 +1,20 @@
+import time
+
+def newsSelectedHandler(message):
+    
+    print("news-selected:",message)
+
+def newsMoneyHandler(message):
+    
+    print("news-money:",message)
+
+
+s5 = r.pubsub(ignore_subscribe_messages=True) 
+s5.subscribe(**{'news-selected': newsSelectedHandler})
+s5.subscribe(**{'news-money': newsMoneyHandler})
+
+thread = s5.run_in_thread(sleep_time=0.01)
+
+time.sleep(30)
+
+thread.stop()

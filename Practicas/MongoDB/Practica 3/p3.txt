@@ -1,0 +1,43 @@
+﻿Práctica 3 -  NoSQL - Solución
+Nombre 1: Manuel Guerrero Moñús
+Nombre 2: Pablo Miranda Torres
+Observaciones:
+
+
+Respuestas
+
+#1Consulta:
+db.webs.aggregate( [ { $group: {_id: "$navegador" , sesiones: { $sum: 1}} }, {$sort: {sesiones: 1} } ] )
+
+#2Consulta:
+db.webs.aggregate( [ { $group: {_id: "$nombre" , sesiones: { $sum: 1}} }, { $sort: { sesiones: -1 } }, {$limit: 1}  ] )
+
+#3Consulta:
+db.webs.aggregate( [ { $unwind: "$pags"}, {$match: {"pags.segs": {$gt: 100} } }, {$group: {_id: "$nombre", webs: {$sum: 1} } } ] )
+
+
+#4Consulta:
+db.webs.aggregate( [ { $group: { _id: "$nombre", sesiones: { $sum: 1 }, urls: {$sum: {$size: "$pags" } } } }, {$project: {_id: 1, media: {$divide: ["$urls", "$sesiones"] } }}, {$sort: {media: -1} }, {$limit: 1} ] )
+
+
+#5Consulta:
+db.webs.aggregate( [{$project: {navegador: 1, "año": {$year: "$fecha"}}}, {$match: {navegador: "Explorer", año: 2016}}, {$group: {_id: "$navegador", total:{ $sum: 1} } } ] )
+
+#6Consulta:
+db.webs.aggregate( [ {$group: {_id: {navegador: "$navegador", año: {$year: "$fecha"} }, total: {$sum: 1} } } ] )
+
+#7Consulta:
+db.webs.aggregate( [ {$match: {"pags.url": "https://www.mikokoloko.com" } }, {$count: "total"} ] )
+
+#8Consulta:
+db.webs.aggregate( [ {$unwind: "$pags"}, {$group: {_id: "$pags.url"} }, {$count: "total"} ] ).pretty()
+
+
+#9Consulta:
+db.webs.aggregate( [ {$unwind: "$pags"}, {$group: {_id: "$nombre" , total: { $sum: {$divide: ["$pags.segs", 60] } }} } ] ).pretty()
+
+
+#10Consulta:
+db.webs.aggregate( [ {$match: { "pags.url": { $regex: /^http/ }} }, {$group: {_id: "$nombre"}} ] ).pretty()
+
+

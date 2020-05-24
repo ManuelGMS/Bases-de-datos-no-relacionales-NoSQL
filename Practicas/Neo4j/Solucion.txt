@@ -1,0 +1,82 @@
+Manuel Guerrero Moñús
+
+1º) Amistades (directas) de la víctima.
+
+MATCH R = (A:Victima)-[:AMISTAD]-> () RETURN R
+
+2º) Relaciones amorosas (recíprocas).
+
+MATCH R = (A)-[:AMOR]->(B)
+WHERE (A)-[:AMOR]->(B) AND (B)-[:AMOR]->(A) 
+RETURN R
+
+3º) Ultima vez que algunos sospechosos vieron a Bertoldo.
+
+MERGE (PERSONA1:Sospechoso {nombre:'Aniceto'}) 
+ON MATCH SET PERSONA1.ultimavez = datetime('2020-05-12T12:50:35.000+0100')
+
+MERGE (PERSONA2:Sospechoso {nombre:'Herminia'}) 
+ON MATCH SET PERSONA2.ultimavez = datetime('2020-05-12T16:00:00.000+0100')
+
+MERGE (PERSONA3:Sospechoso {nombre:'Melibeo'}) 
+ON MATCH SET PERSONA3.ultimavez = datetime('2020-05-11T09:00:00.000+0100')
+
+MERGE (PERSONA4:Sospechoso {nombre:'Calixta'}) 
+ON MATCH SET PERSONA4.ultimavez = datetime('2020-05-12T14:00:00.000+0100')
+
+4º) Último momento en que un sospechoso vió a la víctima.
+
+MATCH (A:Sospechoso) -[]->(B:Victima)
+WITH  max(A.ultimavez) AS Visto
+MATCH (C:Sospechoso) -[]->(D:Victima)
+WHERE C.ultimavez = Visto
+RETURN Visto
+
+5º) Nombre de la última persona que vió a la víctima.
+
+MATCH (A:Sospechoso) -[]->(B:Victima)
+WITH  max(A.ultimavez) AS Visto
+MATCH (C:Sospechoso) -[]->(D:Victima)
+WHERE C.ultimavez = Visto
+RETURN C.nombre
+
+6º) Círculos amorosos en los que la víctima aparece una única vez.
+
+MATCH R = (A:Sospechoso)-[:AMOR *3..]-> (B:Sospechoso)
+WHERE A = B AND SINGLE(PERSONA IN nodes(R) WHERE PERSONA.nombre = 'Bertoldo')
+RETURN R
+
+7º) Otros círculos (no amorosos) de cualquier longitud.
+
+MATCH R = (A)-[*]-> (B)
+WHERE A = B AND NONE (r IN relationships(R) WHERE type(r)= 'AMOR')
+RETURN R
+
+8º) Personas que aman a Bertoldo y no son correspondidos.
+
+MATCH (A:Sospechoso)
+WHERE (A)-[:AMOR]->(:Victima) AND NOT (:Victima)-[:AMOR]->(A)
+WITH COLLECT(A.nombre) AS NoCorrespondidos
+RETURN NoCorrespondidos
+
+9º) Personas X enamoradas de alguna otra Y que ama a Bertoldo.
+
+MATCH (A:Sospechoso)
+WHERE (A:Sospechoso)-[:AMOR]->(:Sospechoso)-[:AMOR]->(:Victima)
+WITH COLLECT(A.nombre) AS amantesDeAmantesDeBertoldo
+RETURN amantesDeAmantesDeBertoldo
+
+10º) Mensaje secreto de Bertoldo.
+
+MATCH (N:Sospechoso) // Obtenemos todos los nodos de los sospechosos.
+WITH COLLECT({edad: N.edad, mensaje: N.mensaje}) as c0 // Creamos una lista de elementos [{age,msg}...{age,msg}]
+UNWIND c0 AS c1 // Al igual que en MongoDB, sacamos todos los registros de la colección.
+WITH c1 ORDER BY c1.edad ASC // Ordenamos los registros disperos en función de la edad, de menor a mayor.
+WITH COLLECT(c1) AS c2 // Ahora que tenemos los registros ordenados los volvemos a introducir en una lista.
+RETURN REDUCE(texto = '', trozo IN c2 | texto + trozo.mensaje) AS mensajeOculto // Acumulamos sobre texto los trozos.
+
+Mensaje: "bellisima".
+
+CALIXTA --> La más bella.
+
+Peláez finalmente detiene a CALIXTA por matar a BERTOLDO para que CELESTINA no se fije en él.

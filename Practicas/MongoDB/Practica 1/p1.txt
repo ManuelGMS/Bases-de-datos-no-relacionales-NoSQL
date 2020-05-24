@@ -1,0 +1,50 @@
+// Nombre 1: Manuel Guerrero Moñús
+// Nombre 2: Mª Victoria Barylak Alcaraz
+
+// INSTRUCCIONES:
+// arrancar el servidor desde un terminal (t1): mongod -dbpath datos
+// desde otro terminal (t2): 
+// mongoimport --drop --db=redes --collection=twitter --file=twitter.json
+// debe importar 5 documentos
+// Ahora en T2: mongo
+// Copiar DEBAJO de cada pregunta la consulta correspondientes 
+
+//1.- Nombre (_id) del usuario con cuenta verificada menor por orden alfabético
+
+db.twitter.find({ verified: 1 } , { _id: 1  }).sort({ _id: 1  }).limit(1);
+
+//2.- Número de los usuarios que tienen clave de coordenadas (coord)
+
+db.twitter.find({ coord: { $exists: true  }  }).count();
+
+//3.- Número de usuarios con país "sp"
+
+db.twitter.find({ "loc.pais": "sp" }).count();
+
+//4.- Número de usuarios con "cp" mayor que 27000 y menor de 29000
+
+db.twitter.find({ "loc.cp": { $gt: 27000 , $lt: 29000  }  }).count();
+ 
+//5.- Número de usuarios que tienen al menos un tweet con retweet (rt:1)
+
+db.twitter.find({ "tweets.rt": 1 }).count(); 
+
+//6.- Códigos postales (CP) que  son de tipo string o de tipo bool
+
+db.twitter.find({ $or: [ { "loc.cp": { $type: "bool" } } , { "loc.cp": { $type: "string"  }  } ] } , { "loc.cp": 1 , _id: 0 });
+
+//7.- Lista de países distintos (pais)
+
+db.twitter.distinct("loc.pais"); 
+
+//8.- Número de países distintos
+
+db.twitter.distinct("loc.pais").length
+
+//9.- Valores para los que sus coordenadas (coord) verifican que la latitud es menor que dos veces la longitud
+
+db.twitter.find({ "coord.long": { $exists: true } , "coord.lat": { $exists: true  } , $expr: { $lt: [ "$coord.long" , { $multiply: ["$coord.lat",2] }  ] }  });
+
+//10.- Número de usuarios que tiene algún tweet con retweet (rt:1) que no haya sido borrado (del:1)
+
+db.twitter.find({ "tweets": { rt: 1 , del: 1  }  }).count();

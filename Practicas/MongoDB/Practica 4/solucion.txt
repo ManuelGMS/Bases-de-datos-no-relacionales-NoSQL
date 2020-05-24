@@ -1,0 +1,54 @@
+﻿Bases de datos NoSQL - práctica 4
+
+//Nombre1: Manuel Guerrero Moñús
+//Nombre2: Mª Victoria Barylak Alcaraz	
+//Nombre3: Pablo Miranda Torres
+
+//Observaciones:
+
+//P1a Insert:
+db.lugares.insert({nombre:"María Zambrano", tipo:"biblioteca", pais:"España", posicion: {type:"Point", coordinates:[-3.7354677,40.449241]}})
+
+//P1b Indice:
+db.lugares.createIndex({posicion: "2dsphere"})
+
+//P2 Consulta:
+db.lugares.find({ posicion: { $near: { $geometry: { type: "Point", coordinates: [-3.7251149, 40.4381963] }, $minDistance: 1500 } } }, { _id:0, nombre:1, tipo:1 })
+
+//P3a Creación de índices:
+db.plano.createIndex({ punto: "2d" }, "ipunto")
+db.plano.createIndex({ desc: "2d" }, "idesc")
+
+//P3b Comentario sobre dif de tamaños:
+El índice "ipunto" tiene mayor tamaño porque crea una clave dentro del índice por cada valor de los arrays, mientras que "idesc" cada string es una clave.
+
+//P4 Consulta:
+db.plano.find({ "punto.0": { $gt: 480 } }).count()
+
+
+//P5a Índice (Sí/No): Sí
+//P5b ¿Cuál? (si sí): ipunto
+
+//P6 Consulta:
+db.plano.find({ punto: { $geoWithin: { $polygon: [ [0,0], [3,0], [3,3], [0,3] ] } } } )
+
+//P7 Creación de índice:
+db.plano.createIndex({ punto: "2d" }, "ipunto")
+
+//P8a ¿Sé puede crear el índice?(Sí/No): No
+
+//P8b ¿Por qué? (una frase):
+Para cálculos geométricos sobre esferas (ej. $geoWithin), se usan índices de tipo "2dsphere" que necesitan que los valores de la longitud estén comprendidos entre -180 y 180, y los de la latitud entre -90 y 90.
+
+//P9a ¿Sé puede crear el índice para mejorar?(Sí/No): Sí, un índice compuesto, ordenando de forma ascendente el primer campo, y de forma descendente el segundo campo.
+
+//P9b Si la respuesta es sí, copiar la instrucción para crearlo. Si es no, escribir una frase explicando por qué.
+db.plano.createIndex({ punto:1, desc:-1 })
+
+//P10 Fragmento de código:
+> db.lugares.aggregate([ { $geoNear: { 
+				near: { type: "Point", coordinates: [-3.722009, 40.438458] }, 
+				spherical: true, 
+				distanceField: "distancia", 
+				query: { nombre: "María Zambrano" } } } ])
+
