@@ -1,0 +1,2 @@
+# Bases-de-datos-no-relacionales-NoSQL
+Prácticas de la asignatura "NoSQL" de la Universidad Complutense de Madrid: MongoDB (Introducción, CRUD, Aggregation, Python, Índices, Clústers), Redis (Introducción, Python, Publicación y Subscripción), Elasticsearch (Introducción a los motores de búsqueda, Python), Cassandra (Introducción, CassandraQL), Neo4j (Introducción, Cypher), InfluxDB (Introducción, InfluxQL, Python).
